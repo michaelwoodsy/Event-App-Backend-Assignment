@@ -39,8 +39,9 @@ exports.findToken = async function(token) {
 exports.logout = async function(id) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set auth_token = null where id = ?';
-    await conn.query(query, [id]);
+    const [result] = await conn.query(query, [id]);
     conn.release();
+    return result;
 };
 
 exports.getUser = async function(id) {
