@@ -1,28 +1,73 @@
 const users = require('../models/users.model');
 const bcrypt = require("bcrypt");
 
-exports.register = async function(req, res){
+exports.register = async function (req, res) {
+    const email = req.body.email
+    const firstName = req.body.firstName
+    const lastName = req.body.lastName
+    const password = req.body.password
+
+    if (email == null || firstName == null || lastName == null || password == null || firstName === "" || lastName === "" || password === "") {
+        res.statusMessage = "Bad Request";
+        res.status(400).send();
+
+    } else if (!/^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$/.test(email)) {
+        res.statusMessage = "Bad Request";
+        res.status(400).send();
+
+    } else {
+        try {
+            const emailCheck = await users.getEmail(email);
+            if (emailCheck.length !== 0)  {
+                res.statusMessage = "Bad Request";
+                res.status(400).send();
+            } else {
+                const result = await users.register(email, firstName, lastName, password);
+                res.statusMessage = "OK";
+                res.status(200).send({userId: result.insertId});
+            }
+        } catch( err ) {
+            res.status( 500 )
+                .send( `ERROR inserting users ${ err }` );
+        }
+    }
+};
+
+exports.login = async function(req, res){
     try {
-        const firstName = req.body.firstName;
-        const lastName = req.body.lastName;
         const email = req.body.email;
         const password = req.body.password;
-        const emailCheck = await users.getEmail(email);
 
-        let checker = 0;
-
-        if((firstName == null || firstName === "") || (lastName == null || lastName === "") || (email == null || !/^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$/.test(email) || emailCheck.length > 0) || (password == null || password === "")){
-            checker = 1;
-        }
-
-        if (checker === 1) {
+        if (email == null || password == null) {
             res.statusMessage = "Bad Request";
             res.status(400).send();
-        }
-        else {
-            const result = await users.register(firstName, lastName, email, password);
-            res.statusMessage = "Created";
-            res.status(201).send({userId: result.insertId});
+        } else {
+            const emailCheck = await users.getEmail(email);
+
+            let checker = 0;
+
+            if (emailCheck.length === 0) {
+                checker = 1;
+            }
+
+            if (checker === 1) {
+                res.statusMessage = "Bad Request";
+                res.status(400).send();
+            }
+            else {
+                const passwordCheck = emailCheck[0].password;
+                const validPassword = await bcrypt.compare(password, passwordCheck);
+
+                if (!validPassword){
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                } else {
+                    const id = emailCheck[0].id;
+                    const token = await users.setToken(id);
+                    res.statusMessage = "OK";
+                    res.status(200).send({userId: id, token: token});
+                }
+            }
         }
     } catch( err ) {
         console.log(err);
@@ -31,64 +76,20 @@ exports.register = async function(req, res){
     }
 };
 
-exports.login = async function(req, res){
+exports.logout = async function (req, res) {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
-        const userCheck = await users.getEmail(email);
+        const authToken = req.header('X-Authorization');
+        const tokenCheck = await users.findToken(authToken);
 
-        let checker = 0;
-
-        if (userCheck.length === 0) {
-            checker = 1;
-        }
-
-        if (checker === 1) {
-            res.statusMessage = "Bad Request";
-            res.status(400).send();
-        }
-        else {
-            const emailCheck = userCheck[0].email;
-            const passwordCheck = userCheck[0].password;
-            const validPassword = await bcrypt.compare(password, passwordCheck);
-
-            if (!validPassword || email !== emailCheck){
-                res.statusMessage = "Bad Request";
-                res.status(400).send();
-            } else {
-                const id = userCheck[0].id;
-                const token = await users.setToken(id);
-                res.statusMessage = "OK";
-                res.status(200).send({userId: id, token: token});
-                }
-            }
-        } catch( err ) {
-            console.log(err);
-            res.statusMessage = "Internal Server Error";
-            res.status(500).send();
-    }
-};
-
-exports.logout = async function(req, res){
-    try {
-        const token = req.header('X-Authorization');
-        const userCheck = await users.findToken(token);
-
-        let checker = 0;
-
-        if (userCheck.length === 0) {
-            checker = 1;
-        }
-
-        if (checker === 1) {
+        if (tokenCheck.length === 0) {
             res.statusMessage = "Unauthorized";
             res.status(401).send();
         } else {
-            const id = userCheck[0].id;
-            await users.logout(id);
+            await users.logout(tokenCheck[0].id);
             res.statusMessage = "OK";
             res.status(200).send();
         }
+
     } catch( err ) {
         console.log(err);
         res.statusMessage = "Internal Server Error";
@@ -132,8 +133,11 @@ exports.read = async function(req, res){
 exports.update = async function(req, res){
     try {
         const id = req.params.id;
+        console.log(id);
         const userCheck = await users.getUser(id);
+        console.log(userCheck);
         const token = req.header('X-Authorization');
+        console.log(token);
         if (userCheck.length === 0) {
             res.statusMessage = "Not Found";
             res.status(404).send();
