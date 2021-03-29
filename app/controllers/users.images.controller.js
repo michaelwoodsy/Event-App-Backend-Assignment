@@ -1,5 +1,5 @@
 const usersImages = require('../models/users.images.model');
-const fs = require("fs");
+const fs = require("fs/promise");
 
 exports.read = async function(req, res){
     try {
@@ -58,24 +58,25 @@ exports.set = async function(req, res){
             const savePath = 'storage/images/';
 
             if (type === 'image/png') {
-                image_filename = image_filename + '.png';
+                image_filename += '.png';
             } else if (type === 'image/jpeg') {
-                image_filename = image_filename + '.jpg';
+                image_filename += '.jpg';
             } else if (type === 'image/gif') {
-                image_filename = image_filename + '.gif';
+                image_filename += '.gif';
             }
 
-            const filename = savePath + image_filename
+            const filename = savePath + image_filename;
+            const imageBody = req.body;
 
             if (imageCheck[0].image_filename == null) {
                 res.statusMessage = "Created";
                 await usersImages.set(id, image_filename);
-                await fs.writeFile(filename, req.body);
+                await fs.writeFile(filename, imageBody);
                 res.status(201).send();
             } else {
                 res.statusMessage = "OK";
                 await usersImages.set(id, image_filename);
-                await fs.writeFile(filename, req.body);
+                await fs.writeFile(filename, imageBody);
                 res.status(200).send();
             }
         }
