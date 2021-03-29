@@ -1,4 +1,5 @@
 const usersImages = require('../models/users.images.model');
+const fs = require("fs");
 
 exports.read = async function(req, res){
     try {
@@ -36,7 +37,43 @@ exports.read = async function(req, res){
 };
 
 exports.set = async function(req, res){
-    return null;
+    const id = req.params.id
+    const imageCheck = await usersImages.getUser(id);
+    const token = req.header('X-Authorization');
+    if (imageCheck.length === 0) {
+        res.statusMessage = "Not Found";
+        res.status(404).send();
+    } else if (token == null) {
+        res.statusMessage = "Unauthorized";
+        res.status(401).send();
+    } else if (token !== imageCheck[0].auth_token) {
+        res.statusMessage = "Forbidden";
+        res.status(403).send();
+    } else {
+        const type = req.header("Content-Type");
+        const date = Date.now();
+        let image_filename = 'user_' + date;
+        const savePath = 'storage/images/';
+
+        if (type == 'image/png') {
+            image_filename = image_filename + '.png';
+        } else if (type == 'image/jpeg') {
+            image_filename = image_filename + '.jpg';
+        } else if (type == 'image/gif') {
+            image_filename = image_filename + '.gif';
+        }
+
+        await usersImages.set(id, image_filename);
+        await fs.writeFile(savePath + image_filename, req.body);
+
+        if (imageCheck[0].image_filename == null) {
+            res.statusMessage = "Created";
+            res.status(201).send();
+        } else {
+            res.statusMessage = "OK";
+            res.status(200).send();
+        }
+    }
 };
 
 exports.delete = async function(req, res){

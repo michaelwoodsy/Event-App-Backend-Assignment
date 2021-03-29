@@ -30,6 +30,9 @@ module.exports = function () {
     require('../app/routes/events.images.routes')(app);
     require('../app/routes/users.routes')(app);
     require('../app/routes/users.images.routes')(app);
+    app.use(bodyParser.raw({ type: 'image/jpeg', limit: '5mb'}))
+    app.use(bodyParser.raw({ type: 'image/png', limit: '5mb'}))
+    app.use(bodyParser.raw({ type: 'image/gif', limit: '5mb'}))
 
     return app;
 };
