@@ -153,13 +153,19 @@ exports.update = async function(req, res){
                 let checker = 0;
 
                 if (password != null && currentPassword != null) {
-                    const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
-                    if (!validPassword) {
-                        res.statusMessage = "Forbidden";
-                        res.status(403).send();
+                    if (password === "" || currentPassword === "") {
+                        res.statusMessage = "Bad Request";
+                        res.status(400).send();
                         checker = 1;
-                    } else {
-                        await users.setPassword(id, password);
+                    } else{
+                        const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
+                        if (!validPassword) {
+                            res.statusMessage = "Forbidden";
+                            res.status(403).send();
+                            checker = 1;
+                        } else {
+                            await users.setPassword(id, password);
+                        }
                     }
                 }
 
@@ -189,7 +195,14 @@ exports.update = async function(req, res){
                         res.status(400).send();
                         checker = 1;
                     } else {
-                        await users.setEmail(id, email);
+                        const emailCheck = await users.getEmail(email);
+                        if (emailCheck.length > 0) {
+                            res.statusMessage = "Bad Request";
+                            res.status(400).send();
+                            checker = 1;
+                        } else {
+                            await users.setEmail(id, email);
+                        }
                     }
                 }
 
