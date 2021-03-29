@@ -140,10 +140,12 @@ exports.update = async function(req, res){
             } else if (token == null) {
                 res.statusMessage = "Unauthorized";
                 res.status(401).send();
-            } else if (token !== userCheck[0].token) {
+            } else if (token === userCheck[0].auth_token) {
                 res.statusMessage = "Forbidden";
-                res.status(402).send();
+                res.status(403).send();
             } else {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
                 const firstName = req.body.firstName;
                 const lastName = req.body.lastName;
                 const email = req.body.email;
