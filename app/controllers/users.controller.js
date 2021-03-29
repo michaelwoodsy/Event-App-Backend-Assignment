@@ -134,73 +134,86 @@ exports.update = async function(req, res){
         const id = req.params.id;
         const userCheck = await users.getUser(id);
         const token = req.header('X-Authorization');
-            if (userCheck.length === 0) {
-                res.statusMessage = "Not Found";
-                res.status(404).send();
-            } else if (token == null) {
-                res.statusMessage = "Unauthorized";
-                res.status(401).send();
-            } else if (token !== userCheck[0].auth_token) {
-                res.statusMessage = "Forbidden";
-                res.status(403).send();
-            } else {
-                const firstName = req.body.firstName;
-                const lastName = req.body.lastName;
-                const email = req.body.email;
-                const currentPassword = req.body.currentPassword;
-                const password = req.body.password;
+        if (userCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (token == null) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (token !== userCheck[0].auth_token) {
+            res.statusMessage = "Forbidden";
+            res.status(403).send();
+        } else {
+            const firstName = req.body.firstName;
+            const lastName = req.body.lastName;
+            const email = req.body.email;
+            const currentPassword = req.body.currentPassword;
+            const password = req.body.password;
 
+            let checker = 0;
 
-                if (password != null) {
-                    if (password === "") {
-                        res.statusMessage = "Bad Request";
-                        res.status(400).send();
+            if (password != null) {
+                if (password === "") {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                    checker = 1;
+                } else{
+                    const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
+                    if (!validPassword) {
+                        res.statusMessage = "Forbidden";
+                        res.status(403).send();
+                        checker = 1;
                     } else {
-                        const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
-                        if (!validPassword) {
-                            res.statusMessage = "Forbidden";
-                            res.status(403).send();
-                        } else {
-                            await users.setPassword(id, password);
-                        }
+                        await users.setPassword(id, password);
                     }
                 }
+            }
 
-                if (email != null) {
-                    if (!/^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$/.test(email)) {
+            if (email != null) {
+                if (!/^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$/.test(email)) {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                    checker = 1;
+                } else {
+                    const emailCheck = await users.getEmail(email);
+                    if (emailCheck.length > 0) {
                         res.statusMessage = "Bad Request";
                         res.status(400).send();
+                        checker = 1;
                     } else {
-                        const emailCheck = await users.getEmail(email);
-                        if (emailCheck.length > 0) {
-                            res.statusMessage = "Bad Request";
-                            res.status(400).send();
-                        } else {
-                            await users.setEmail(id, email);
-                        }
+                        await users.setEmail(id, email);
                     }
                 }
+            }
 
-                if (firstName != null) {
-                    if (firstName === "") {
-                        res.statusMessage = "Bad Request";
-                        res.status(400).send();
-                    } else {
-                        await users.setFirstName(id, firstName);
-                    }
+            if (firstName != null) {
+                if (firstName === "") {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                    checker = 1;
+                } else {
+                    await users.setFirstName(id, firstName);
                 }
+            }
 
-                if (lastName != null) {
-                    if (lastName === "") {
-                        res.statusMessage = "Bad Request";
-                        res.status(400).send();
-                    } else {
-                        await users.setLastName(id, lastName);
-                    }
+            if (lastName != null) {
+                if (lastName === "") {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                    checker = 1;
+                } else {
+                    await users.setLastName(id, lastName);
                 }
+            }
+
+            if (checker === 0) {
                 res.statusMessage = "OK";
                 res.status(200).send();
+            } else {
+                res.statusMessage = "Bad Request";
+                res.status(400).send();
             }
+        }
     } catch( err ) {
         console.log(err);
         res.statusMessage = "Internal Server Error";
