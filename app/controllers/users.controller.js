@@ -144,11 +144,14 @@ exports.update = async function(req, res){
                 const currentPassword = req.body.currentPassword;
                 const password = req.body.password;
 
+                let checker = 0;
+
                 if (password != null) {
                     const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
                     if (!validPassword) {
                         res.statusMessage = "Forbidden";
                         res.status(403).send();
+                        checker = 1;
                     } else {
                         await users.setPassword(id, password);
                     }
@@ -158,6 +161,7 @@ exports.update = async function(req, res){
                     if (firstName === "") {
                         res.statusMessage = "Bad Request";
                         res.status(400).send();
+                        checker = 1;
                     } else {
                         await users.setFirstName(id,firstName);
                     }
@@ -167,6 +171,7 @@ exports.update = async function(req, res){
                     if (lastName === "") {
                         res.statusMessage = "Bad Request";
                         res.status(400).send();
+                        checker = 1;
                     } else {
                         await users.setLastName(id, lastName);
                     }
@@ -176,12 +181,19 @@ exports.update = async function(req, res){
                     if (!/^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$/.test(email)) {
                         res.statusMessage = "Bad Request";
                         res.status(400).send();
+                        checker = 1;
                     } else {
                         await users.setEmail(id, email);
                     }
                 }
-                res.statusMessage = "OK";
-                res.status(200).send();
+
+                if (checker == 0) {
+                    res.statusMessage = "OK";
+                    res.status(200).send();
+                } else {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                }
             }
     } catch( err ) {
         console.log(err);

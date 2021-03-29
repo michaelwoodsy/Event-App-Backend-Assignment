@@ -15,7 +15,7 @@ exports.register = async function(firstName, lastName, email, password) {
 exports.getEmail = async function(email) {
     const conn = await db.getPool().getConnection();
     const query = 'select * from user where email = ?';
-    const [result] = await conn.query( query, [email] );
+    const [result] = await conn.query( query, [email]);
     conn.release();
     return result;
 };

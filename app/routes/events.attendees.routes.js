@@ -10,6 +10,6 @@ module.exports = function (app) {
     app.route(app.rootUrl + '/events/:id/attendees')
         .delete(eventsAttendees.delete);
 
-    app.route(app.rootUrl + '/events/:id/attendees/:id')
+    app.route(app.rootUrl + '/events/:event_id/attendees/:user_id')
         .patch(eventsAttendees.update);
 };
