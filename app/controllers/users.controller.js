@@ -152,7 +152,7 @@ exports.update = async function(req, res){
 
                 let checker = 0;
 
-                if (password != null) {
+                if (password != null && currentPassword != null) {
                     const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
                     if (!validPassword) {
                         res.statusMessage = "Forbidden";
