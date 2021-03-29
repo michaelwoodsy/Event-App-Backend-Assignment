@@ -38,7 +38,7 @@ exports.read = async function(req, res){
 
 exports.set = async function(req, res){
     try {
-        const id = req.params.id
+        const id = req.params.user_id;
         const imageCheck = await usersImages.getUser(id);
         const token = req.header('X-Authorization');
 
