@@ -11,15 +11,13 @@ exports.getUser = async function(id) {
 exports.set = async function(id, image_filename) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set image_filename = ? where id = ?';
-    const [result] = await conn.query(query, [image_filename, id]);
+    await conn.query(query, [image_filename, id]);
     conn.release();
-    return result;
 };
 
-exports.delete = async function() {
+exports.delete = async function(id) {
     const conn = await db.getPool().getConnection();
-    const query = 'insert into user';
-    const [result] = await conn.query(query);
+    const query = 'update user set image_filename = null where id = ?';
+    await conn.query(query, [id]);
     conn.release();
-    return result;
 };

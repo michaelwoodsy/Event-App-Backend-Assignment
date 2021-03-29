@@ -40,9 +40,8 @@ exports.findToken = async function(token) {
 exports.logout = async function(id) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set auth_token = null where id = ?';
-    const [result] = await conn.query(query, [id]);
+    await conn.query(query, [id]);
     conn.release();
-    return result;
 };
 
 exports.getUser = async function(id) {
@@ -64,24 +63,21 @@ exports.setFirstName = async function(id, firstName) {
 exports.setLastName = async function(id, lastName) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set last_name = ? where id = ?';
-    const [result] = await conn.query(query, [lastName, id]);
+    await conn.query(query, [lastName, id]);
     conn.release();
-    return result;
 };
 
 exports.setEmail = async function(id, email) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set email = ? where id = ?';
-    const [result] = await conn.query(query, [email, id]);
+    await conn.query(query, [email, id]);
     conn.release();
-    return result;
 };
 
 exports.setPassword = async function(id, password) {
     const hash = await bcrypt.hash(password, 10);
     const conn = await db.getPool().getConnection();
     const query = 'update user set password = ? where id = ?';
-    const [result] = await conn.query(query, [hash, id]);
+    await conn.query(query, [hash, id]);
     conn.release();
-    return result;
 };
