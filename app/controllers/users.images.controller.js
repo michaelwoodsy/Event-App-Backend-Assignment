@@ -38,7 +38,7 @@ exports.read = async function(req, res){
 
 exports.set = async function(req, res){
     try {
-        const id = req.params.user_id;
+        const id = req.params.id;
         const imageCheck = await usersImages.getUser(id);
         const token = req.header('X-Authorization');
 
@@ -53,9 +53,18 @@ exports.set = async function(req, res){
             res.status(403).send();
         } else {
             const type = req.header("Content-Type");
+            console.log(type);
             const date = Date.now();
             let image_filename = 'user_' + date;
             const savePath = 'storage/images/';
+
+            if (imageCheck[0].image_filename == null) {
+                res.statusMessage = "Created";
+                res.status(201);
+            } else {
+                res.statusMessage = "OK";
+                res.status(200);
+            }
 
             if (type === 'image/png') {
                 image_filename += '.png';
@@ -65,20 +74,10 @@ exports.set = async function(req, res){
                 image_filename += '.gif';
             }
 
-            const filename = savePath + image_filename;
-            const imageBody = req.body;
+            await usersImages.set(id, image_filename);
+            await fs.writeFile(savePath + image_filename, req.body);
 
-            if (imageCheck[0].image_filename == null) {
-                res.statusMessage = "Created";
-                await usersImages.set(id, image_filename);
-                await fs.writeFile(filename, imageBody);
-                res.status(201).send();
-            } else {
-                res.statusMessage = "OK";
-                await usersImages.set(id, image_filename);
-                await fs.writeFile(filename, imageBody);
-                res.status(200).send();
-            }
+            res.send();
         }
     } catch( err ) {
         console.log(err);
