@@ -140,7 +140,7 @@ exports.update = async function(req, res){
             } else if (token == null) {
                 res.statusMessage = "Unauthorized";
                 res.status(401).send();
-            } else if (token === userCheck[0].auth_token) {
+            } else if (token !== userCheck[0].auth_token) {
                 res.statusMessage = "Forbidden";
                 res.status(403).send();
             } else {
