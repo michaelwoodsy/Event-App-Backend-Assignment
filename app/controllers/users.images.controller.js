@@ -1,5 +1,5 @@
 const usersImages = require('../models/users.images.model');
-const fs = require("fs");
+const fs = require("fs/promises");
 
 exports.read = async function(req, res){
     try {
