@@ -142,7 +142,7 @@ exports.update = async function(req, res){
                 res.status(401).send();
             } else if (token !== userCheck[0].token) {
                 res.statusMessage = "Forbidden";
-                res.status(403).send();
+                res.status(402).send();
             } else {
                 const firstName = req.body.firstName;
                 const lastName = req.body.lastName;
