@@ -137,6 +137,9 @@ exports.update = async function(req, res){
             if (token !== userCheck[0].auth_token) {
                 res.statusMessage = "Unauthorized";
                 res.status(401).send();
+            } else if (userCheck.length === 0) {
+                res.statusMessage = "Not Found";
+                res.status(404).send();
             } else {
                 const firstName = req.body.firstName;
                 const lastName = req.body.lastName;
