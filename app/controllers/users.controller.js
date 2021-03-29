@@ -140,9 +140,9 @@ exports.update = async function(req, res){
             } else if (token == null) {
                 res.statusMessage = "Unauthorized";
                 res.status(401).send();
-            } else if (userCheck[0].token !== token) {
-                res.statusMessage = "Unauthorized";
-                res.status(401).send();
+            } else if (token !== userCheck[0].token) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
             } else {
                 const firstName = req.body.firstName;
                 const lastName = req.body.lastName;
@@ -160,8 +160,8 @@ exports.update = async function(req, res){
                     } else{
                         const validPassword = await bcrypt.compare(currentPassword, userCheck[0].password);
                         if (!validPassword) {
-                            res.statusMessage = "Not Found";
-                            res.status(404).send();
+                            res.statusMessage = "Forbidden";
+                            res.status(403).send();
                             checker = 1;
                         } else {
                             await users.setPassword(id, password);
