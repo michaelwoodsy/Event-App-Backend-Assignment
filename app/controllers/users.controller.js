@@ -65,7 +65,7 @@ exports.login = async function(req, res){
                     const id = emailCheck[0].id;
                     const token = await users.setToken(id);
                     res.statusMessage = "OK";
-                    res.status(200).send({userId: id, token: token});
+                    res.status(201).send({userId: id, token: token});
                 }
             }
         }
