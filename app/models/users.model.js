@@ -1,10 +1,9 @@
 const db = require('../../config/db');
-const bcrypt = require("bcrypt");
+const passwords = require("../middleware/passwords.middleware");
 const crypto = require('crypto');
 
 exports.register = async function(firstName, lastName, email, password) {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
+    const hash = passwords.hash(password);
     const conn = await db.getPool().getConnection();
     const query = 'insert into user (first_name, last_name, email, password) values (?)';
     const [result] = await conn.query(query, [[firstName, lastName, email, hash]]);
@@ -72,9 +71,9 @@ exports.setEmail = async function(id, email) {
     await conn.query(query, [email, id]);
     conn.release();
 };
+
 exports.setPassword = async function(id, password) {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
+    const hash = passwords.hash(password);
     const conn = await db.getPool().getConnection();
     const query = 'update user set password = ? where id = ?';
     await conn.query(query, [hash, id]);
