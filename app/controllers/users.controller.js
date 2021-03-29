@@ -144,8 +144,6 @@ exports.update = async function(req, res){
                 res.statusMessage = "Forbidden";
                 res.status(403).send();
             } else {
-                res.statusMessage = "Forbidden";
-                res.status(403).send();
                 const firstName = req.body.firstName;
                 const lastName = req.body.lastName;
                 const email = req.body.email;
