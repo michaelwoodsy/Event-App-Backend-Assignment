@@ -134,12 +134,15 @@ exports.update = async function(req, res){
         const id = req.params.id;
         const userCheck = await users.getUser(id);
         const token = req.header('X-Authorization');
-            if (token !== userCheck[0].auth_token) {
-                res.statusMessage = "Unauthorized";
-                res.status(401).send();
-            } else if (userCheck.length === 0) {
+            if (userCheck.length === 0) {
                 res.statusMessage = "Not Found";
                 res.status(404).send();
+            } else if (token == null) {
+                res.statusMessage = "Unauthorized";
+                res.status(401).send();
+            } else if (userCheck[0].token !== token) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
             } else {
                 const firstName = req.body.firstName;
                 const lastName = req.body.lastName;
@@ -190,7 +193,7 @@ exports.update = async function(req, res){
                     }
                 }
 
-                if (checker == 0) {
+                if (checker === 0) {
                     res.statusMessage = "OK";
                     res.status(200).send();
                 } else {
