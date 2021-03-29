@@ -54,28 +54,32 @@ exports.getUser = async function(id) {
 exports.setFirstName = async function(id, firstName) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set first_name = ? where id = ?';
-    await conn.query(query, [firstName, id]);
+    const [result] = await conn.query(query, [firstName, id]);
     conn.release();
+    return result;
 };
 
 exports.setLastName = async function(id, lastName) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set last_name = ? where id = ?';
-    await conn.query(query, [lastName, id]);
+    const [result] = await conn.query(query, [lastName, id]);
     conn.release();
+    return result;
 };
 
 exports.setEmail = async function(id, email) {
     const conn = await db.getPool().getConnection();
     const query = 'update user set email = ? where id = ?';
-    await conn.query(query, [email, id]);
+    const [result] = await conn.query(query, [email, id]);
     conn.release();
+    return result;
 };
 
 exports.setPassword = async function(id, password) {
     const hash = passwords.hash(password);
     const conn = await db.getPool().getConnection();
     const query = 'update user set password = ? where id = ?';
-    await conn.query(query, [hash, id]);
+    const [result] = await conn.query(query, [hash, id]);
     conn.release();
+    return result;
 };

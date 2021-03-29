@@ -152,8 +152,8 @@ exports.update = async function(req, res){
 
                 let checker = 0;
 
-                if (password != null && currentPassword != null) {
-                    if (password === "" || currentPassword === "") {
+                if (password != null) {
+                    if (password === "") {
                         res.statusMessage = "Bad Request";
                         res.status(400).send();
                         checker = 1;
@@ -166,26 +166,6 @@ exports.update = async function(req, res){
                         } else {
                             await users.setPassword(id, password);
                         }
-                    }
-                }
-
-                if (firstName != null) {
-                    if (firstName === "") {
-                        res.statusMessage = "Bad Request";
-                        res.status(400).send();
-                        checker = 1;
-                    } else {
-                        await users.setFirstName(id,firstName);
-                    }
-                }
-
-                if (lastName != null) {
-                    if (lastName === "") {
-                        res.statusMessage = "Bad Request";
-                        res.status(400).send();
-                        checker = 1;
-                    } else {
-                        await users.setLastName(id, lastName);
                     }
                 }
 
@@ -203,6 +183,26 @@ exports.update = async function(req, res){
                         } else {
                             await users.setEmail(id, email);
                         }
+                    }
+                }
+
+                if (firstName != null) {
+                    if (firstName === "") {
+                        res.statusMessage = "Bad Request";
+                        res.status(400).send();
+                        checker = 1;
+                    } else {
+                        await users.setFirstName(id, firstName);
+                    }
+                }
+
+                if (lastName != null) {
+                    if (lastName === "") {
+                        res.statusMessage = "Bad Request";
+                        res.status(400).send();
+                        checker = 1;
+                    } else {
+                        await users.setLastName(id, lastName);
                     }
                 }
 
