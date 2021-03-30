@@ -21,7 +21,7 @@ exports.read = async function(req, res){
             const tokenCheck = await users.findToken(authToken);
             if (tokenCheck.length !== 0) {
                 const userId = tokenCheck[0].id;
-                if (userId == eventCheck[0].organizer_id) {
+                if (userId === eventCheck[0].organizer_id) {
                     const result = await eventsAttendees.getAttendeesAll(id);
                     res.statusMessage = "OK";
                     res.status(200).send(result);
@@ -61,8 +61,6 @@ exports.add = async function(req, res){
 
             const currentDate = new Date();
             const dateObject = new Date(eventCheck[0].date);
-            console.log(currentDate);
-            console.log(attendanceCheck);
             if (attendanceCheck.length !== 0) {
                 res.statusMessage = "Forbidden";
                 res.status(403).send();

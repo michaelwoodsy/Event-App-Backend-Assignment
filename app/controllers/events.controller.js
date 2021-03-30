@@ -149,14 +149,20 @@ exports.create = async function(req, res){
                     res.statusMessage = "Bad Request";
                     res.status(400).send();
                 } else {
-                    const event = await events.getId();
-                    const id = event[0].minusID + 1;
-                    await events.addEvent(title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user[0].id);
-                    for (let i = 0; i < categoryIds.length; i++) {
-                        await events.addEventCategory(id, categoryIds[i])
+                    const eventCheck = await events.checkEvent(title, date, user[0].id);
+                    if (eventCheck.length !== 0) {
+                        res.statusMessage = "Bad Request";
+                        res.status(400).send();
+                    } else {
+                        const event = await events.getId();
+                        const id = event[0].minusID + 1;
+                        await events.addEvent(title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user[0].id);
+                        for (let i = 0; i < categoryIds.length; i++) {
+                            await events.addEventCategory(id, categoryIds[i])
+                        }
+                        res.statusMessage = "OK";
+                        res.status(200).send({eventID: String(id)});
                     }
-                    res.statusMessage = "OK";
-                    res.status(200).send({eventID: String(id)});
                 }
             }
         }

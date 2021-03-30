@@ -100,3 +100,11 @@ exports.deleteEvent = async function(id) {
     const query = 'delete from event where id = ?';
     await conn.query(query, [id]);
 }
+
+exports.checkEvent = async function(title, date, userId) {
+    const conn = await db.getPool().getConnection();
+    const query = 'select * from event where title = ? and date = ? and organizer_id = ?';
+    const [result] = await conn.query( query, [title, date, userId] );
+    conn.release();
+    return result;
+};
