@@ -160,7 +160,23 @@ exports.create = async function(req, res){
 };
 
 exports.readEvent = async function(req, res){
-    return null;
+    try{
+        const id = req.params.id;
+        const eventCheck = await events.getEvent(id);
+
+        if (eventCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else {
+            const result = {};
+            res.statusMessage = "OK";
+            res.status(200).send(eventCheck);
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };
 
 exports.update = async function(req, res){
@@ -172,5 +188,13 @@ exports.delete = async function(req, res){
 };
 
 exports.categories = async function(req, res){
-    return null;
+    try{
+        const result = await events.getCategories();
+        res.statusMessage = "OK";
+        res.status(200).send(result);
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };

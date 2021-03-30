@@ -7,6 +7,9 @@ module.exports = function (app) {
     app.route(app.rootUrl + '/events')
         .post(events.create);
 
+    app.route(app.rootUrl + '/events/categories')
+        .get(events.categories);
+
     app.route(app.rootUrl + '/events/:id')
         .get(events.readEvent);
 
@@ -16,6 +19,4 @@ module.exports = function (app) {
     app.route(app.rootUrl + '/events/:id')
         .delete(events.delete);
 
-    app.route(app.rootUrl + '/events/categories')
-        .get(events.categories);
 };
