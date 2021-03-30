@@ -39,9 +39,10 @@ exports.read = async function(req, res){
 
 exports.set = async function(req, res){
     try {
-        const id = req.params.event_id;
-        const imageCheck = await eventsImages.getEvent(event_id);
+        const id = req.params.id;
+        const imageCheck = await eventsImages.getEvent(id);
         const token = req.header('X-Authorization');
+
 
         if (imageCheck.length === 0) {
             res.statusMessage = "Not Found";
@@ -51,13 +52,16 @@ exports.set = async function(req, res){
             res.status(401).send();
         } else {
             const user = await users.findToken(token);
-            if (imageCheck[0].organizer_id !== user[0].id) {
+            if (user.length == 0) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else if(user[0].id != imageCheck[0].organizer_id) {
                 res.statusMessage = "Forbidden";
                 res.status(403).send();
             } else {
                 const contentType = req.header("Content-Type");
                 const date = Date.now();
-                let imageFilename = 'user_' + date;
+                let imageFilename = 'event_' + date;
                 const savePath = 'storage/images/';
 
                 if (contentType === 'image/png') {
