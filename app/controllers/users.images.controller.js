@@ -65,7 +65,7 @@ exports.set = async function(req, res){
                 imageFilename += '.gif';
             }
 
-            if (imageCheck[0].imageFilename == null) {
+            if (imageCheck[0].image_filename == null) {
                 await usersImages.set(id, imageFilename);
                 await fs.writeFile(savePath + imageFilename, req.body);
                 res.statusMessage = "Created";
