@@ -25,20 +25,42 @@ exports.read = async function(req, res){
             organizerId = '';
         }
 
-        q ='%' + q + '%';
-        organizerId ='%' + organizerId + '%';
-        sortBy = await events.sortMapper(sortBy);
+        let categoryCheck = true;
 
-        let result = [];
-        result = await events.getEvents(sortBy, q, organizerId);
-
-        if (count == null) {
-            res.statusMessage = "OK";
-            res.status(200).send(result.slice(startIndex));
+        if (categoryIds != null) {
+            if (Array.isArray(categoryIds)) {
+                for (let i = 0; i < categoryIds.length; i++) {
+                    let checkCategory = await events.checkCategory(categoryIds[i]);
+                    if (checkCategory.length === 0) {
+                        categoryCheck = false;
+                    }
+                }
+            } else {
+                let checkCategory = await events.checkCategory(categoryIds);
+                if (checkCategory.length === 0) {
+                    categoryCheck = false;
+                }
+            }
+        }
+        if (!categoryCheck) {
+            res.statusMessage = "Bad Request";
+            res.status(400).send();
         } else {
-            count = Number(count) + 1;
-            res.statusMessage = "OK";
-            res.status(200).send(result.slice(startIndex, count));
+            q ='%' + q + '%';
+            organizerId ='%' + organizerId + '%';
+            sortBy = await events.sortMapper(sortBy);
+
+            let result = [];
+            result = await events.getEvents(sortBy, q, organizerId);
+
+            if (count == null) {
+                res.statusMessage = "OK";
+                res.status(200).send(result.slice(startIndex));
+            } else {
+                count = Number(count) + 1;
+                res.statusMessage = "OK";
+                res.status(200).send(result.slice(startIndex, count));
+            }
         }
     } catch( err ) {
         console.log(err);

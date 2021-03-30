@@ -10,13 +10,13 @@ exports.getEvents = async function(sortBy, q, organizerId) {
     return result;
 };
 
-exports.getCategories = async function() {
+exports.checkCategory = async function(categoryId) {
     const conn = await db.getPool().getConnection();
-    const query = 'select distinct id from category order by id';
-    const [result] = await conn.query(query);
+    const query = 'select * from category where id = ?';
+    const [result] = await conn.query(query, [categoryId]);
     conn.release();
     return result;
-}
+};
 
 exports.sortMapper = async function(sortBy) {
     if (sortBy === "ALPHABETICAL_ASC") {
