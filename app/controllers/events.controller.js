@@ -52,12 +52,7 @@ exports.read = async function(req, res){
             sortBy = await events.sortMapper(sortBy);
 
             let result = [];
-            if (organizerId == ''){
-                organizerId ='%' + organizerId + '%';
-                result = await events.getEvents(sortBy, q, organizerId);
-            } else {
-                result = await events.getEventsOrganizer(sortBy, q, organizerId);
-            }
+            result = await events.getEvents(sortBy, q, organizerId);
 
             if (categoryIds == null) {
                 if (count == null) {
