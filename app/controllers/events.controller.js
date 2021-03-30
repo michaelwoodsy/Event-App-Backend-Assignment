@@ -5,7 +5,7 @@ exports.read = async function(req, res){
         let startIndex = req.query.startIndex;
         let count = req.query.count;
         let q = req.query.q;
-        const categoryIds = req.query.categoryIds;
+        let categoryIds = req.query.categoryIds;
         let organizerId = req.query.organizerId;
         let sortBy = req.query.sortBy;
 
@@ -53,13 +53,39 @@ exports.read = async function(req, res){
             let result = [];
             result = await events.getEvents(sortBy, q, organizerId);
 
-            if (count == null) {
-                res.statusMessage = "OK";
-                res.status(200).send(result.slice(startIndex));
+            if (categoryIds == null) {
+                if (count == null) {
+                    res.statusMessage = "OK";
+                    res.status(200).send(result.slice(startIndex));
+                } else {
+                    count = Number(count) + 1;
+                    res.statusMessage = "OK";
+                    res.status(200).send(result.slice(startIndex, count));
+                }
             } else {
-                count = Number(count) + 1;
-                res.statusMessage = "OK";
-                res.status(200).send(result.slice(startIndex, count));
+                let rows = [];
+                for (let i = 0; i < result.length; i++) {
+                    let checker = false;
+                    for (let j = 0; j < categoryIds.length; j++) {
+                        let numberCheck = Number(categoryIds[j])
+                        if (result[i].categories.includes(numberCheck)) {
+                            checker = true;
+                        }
+                    }
+                    if (checker) {
+                        rows.push(result[i]);
+                    }
+                }
+
+                if (count == null) {
+                    res.statusMessage = "OK";
+                    res.status(200).send(rows.slice(startIndex));
+                } else {
+                    count = Number(count) + 1;
+                    res.statusMessage = "OK";
+                    res.status(200).send(rows.slice(startIndex, count));
+                }
+
             }
         }
     } catch( err ) {
