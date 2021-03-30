@@ -127,7 +127,7 @@ exports.create = async function(req, res){
             res.statusMessage = "Unauthorized";
             res.status(401).send();
         } else {
-            if (title == null || description == null || categoryIds == null) {
+            if ((title == null && title != "") || description == null || categoryIds == null) {
                 res.statusMessage = "Bad Request";
                 res.status(400).send();
             }
@@ -142,14 +142,22 @@ exports.create = async function(req, res){
                 res.statusMessage = "Bad Request";
                 res.status(400).send();
             } else {
-                const event = await events.getId();
-                const id = event[0].minusID + 1;
-                await events.addEvent(title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user[0].id);
-                for (let i = 0; i < categoryIds.length; i++) {
-                    await events.addEventCategory(id, categoryIds[i])
+                const currentDate = Date();
+                const dateAndTime = date.split(" ");
+                const dateObject = new Date(dateAndTime[0]);
+                if (dateObject < currentDate) {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                } else {
+                    const event = await events.getId();
+                    const id = event[0].minusID + 1;
+                    await events.addEvent(title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user[0].id);
+                    for (let i = 0; i < categoryIds.length; i++) {
+                        await events.addEventCategory(id, categoryIds[i])
                     }
-                res.statusMessage = "OK";
-                res.status(200).send({eventID: String(id)});
+                    res.statusMessage = "OK";
+                    res.status(200).send({eventID: String(id)});
+                }
             }
         }
     } catch( err ) {
