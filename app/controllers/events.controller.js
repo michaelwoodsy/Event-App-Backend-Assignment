@@ -6,7 +6,7 @@ exports.read = async function(req, res){
         let count = req.query.count;
         let q = req.query.q;
         const categoryIds = req.query.categoryIds;
-        const organizerId = req.query.organizerId;
+        let organizerId = req.query.organizerId;
         let sortBy = req.query.sortBy;
 
         if (startIndex == null) {
@@ -21,11 +21,16 @@ exports.read = async function(req, res){
             q = '';
         }
 
+        if (organizerId == null) {
+            organizerId = '';
+        }
+
         q ='%' + q + '%';
+        organizerId ='%' + organizerId + '%';
         sortBy = await events.sortMapper(sortBy);
 
         let result = [];
-        result = await events.getEvents(sortBy, q);
+        result = await events.getEvents(sortBy, q, organizerId);
 
         if (count == null) {
             res.statusMessage = "OK";
