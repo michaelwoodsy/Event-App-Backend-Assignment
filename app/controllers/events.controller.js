@@ -24,7 +24,7 @@ exports.read = async function(req, res){
 
         sortBy = await events.sortMapper(sortBy);
 
-        const result = await events.getEvents(startIndex, count, sortBy);
+        const result = await events.getEvents();
 
         res.statusMessage = "OK";
         res.status(200).send(result);
