@@ -52,9 +52,9 @@ exports.set = async function(req, res){
             res.statusMessage = "Forbidden";
             res.status(403).send();
         } else {
-            const type = req.header("Content-Type");
+            const contentType = req.header("Content-Type");
             const date = Date.now();
-            let image_filename = 'user_' + date;
+            let imageFilename = 'user_' + date;
             const savePath = 'storage/images/';
 
             if (imageCheck[0].image_filename == null) {
@@ -65,20 +65,25 @@ exports.set = async function(req, res){
                 res.status(200);
             }
 
-            if (type === 'image/png') {
-                image_filename += '.png';
-            } else if (type === 'image/jpeg') {
-                image_filename += '.jpg';
-            } else if (type === 'image/gif') {
-                image_filename += '.gif';
+            if (contentType === 'image/png') {
+                imageFilename += '.png';
+            } else if (contentType === 'image/jpeg') {
+                imageFilename += '.jpg';
+            } else if (contentType === 'image/gif') {
+                imageFilename += '.gif';
             }
 
-            console.log(req.body);
-
-            await usersImages.set(id, image_filename);
-            await fs.writeFile(savePath + image_filename, req.body);
-
-            res.send();
+            if (imageCheck[0].imageFilename == null) {
+                await usersImages.set(id, imageFilename);
+                await fs.writeFile(savePath + imageFilename, req.body);
+                res.statusMessage = "Created";
+                res.status(201).send();
+            } else {
+                await usersImages.set(id, imageFilename);
+                await fs.writeFile(savePath + imageFilename, req.body);
+                res.statusMessage = "OK";
+                res.status(200).send();
+            }
         }
     } catch( err ) {
         console.log(err);
