@@ -17,7 +17,6 @@ exports.read = async function(req, res){
             res.statusMessage = "OK";
             res.status(200).send(result);
         } else {
-            const event = await events.getEvent(id);
             const tokenCheck = await users.findToken(authToken);
             if (tokenCheck.length !== 0) {
                 const userId = tokenCheck[0].id;
