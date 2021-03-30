@@ -17,14 +17,9 @@ exports.read = async function(req, res){
             sortBy = 'DATE_DESC';
         }
 
-        if (count == null) {
-            const rows = await events.getRows();
-            count = rows.length;
-        }
-
         sortBy = await events.sortMapper(sortBy);
 
-        const result = await events.getEvents();
+        const result = await events.getEvents(sortBy);
 
         res.statusMessage = "OK";
         res.status(200).send(result);
