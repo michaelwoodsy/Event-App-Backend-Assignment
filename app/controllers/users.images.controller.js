@@ -59,22 +59,46 @@ exports.set = async function(req, res){
 
             if (contentType === 'image/png') {
                 imageFilename += '.png';
+                if (imageCheck[0].image_filename == null) {
+                    await usersImages.set(id, imageFilename);
+                    await fs.writeFile(savePath + imageFilename, req.body);
+                    res.statusMessage = "Created";
+                    res.status(201).send();
+                } else {
+                    await usersImages.set(id, imageFilename);
+                    await fs.writeFile(savePath + imageFilename, req.body);
+                    res.statusMessage = "OK";
+                    res.status(200).send();
+                }
             } else if (contentType === 'image/jpeg') {
                 imageFilename += '.jpg';
+                if (imageCheck[0].image_filename == null) {
+                    await usersImages.set(id, imageFilename);
+                    await fs.writeFile(savePath + imageFilename, req.body);
+                    res.statusMessage = "Created";
+                    res.status(201).send();
+                } else {
+                    await usersImages.set(id, imageFilename);
+                    await fs.writeFile(savePath + imageFilename, req.body);
+                    res.statusMessage = "OK";
+                    res.status(200).send();
+                }
             } else if (contentType === 'image/gif') {
                 imageFilename += '.gif';
-            }
-
-            if (imageCheck[0].image_filename == null) {
-                await usersImages.set(id, imageFilename);
-                await fs.writeFile(savePath + imageFilename, req.body);
-                res.statusMessage = "Created";
-                res.status(201).send();
+                if (imageCheck[0].image_filename == null) {
+                    await usersImages.set(id, imageFilename);
+                    await fs.writeFile(savePath + imageFilename, req.body);
+                    res.statusMessage = "Created";
+                    res.status(201).send();
+                } else {
+                    await usersImages.set(id, imageFilename);
+                    await fs.writeFile(savePath + imageFilename, req.body);
+                    res.statusMessage = "OK";
+                    res.status(200).send();
+                }
             } else {
-                await usersImages.set(id, imageFilename);
-                await fs.writeFile(savePath + imageFilename, req.body);
-                res.statusMessage = "OK";
-                res.status(200).send();
+                res.statusMessage = "Bad Request";
+                res.status(400).send();
             }
         }
     } catch( err ) {

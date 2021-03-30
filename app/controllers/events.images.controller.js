@@ -1,4 +1,6 @@
 const eventsImages = require('../models/events.images.model');
+const fs = require("fs/promises");
+const users = require('../models/users.model');
 
 exports.read = async function(req, res){
     try {
@@ -36,5 +38,76 @@ exports.read = async function(req, res){
 };
 
 exports.set = async function(req, res){
-    return null;
+    try {
+        const id = req.params.event_id;
+        const imageCheck = await eventsImages.getEvent(event_id);
+        const token = req.header('X-Authorization');
+
+        if (imageCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (token == null) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else {
+            const user = await users.findToken(token);
+            if (imageCheck[0].organizer_id !== user[0].id) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else {
+                const contentType = req.header("Content-Type");
+                const date = Date.now();
+                let imageFilename = 'user_' + date;
+                const savePath = 'storage/images/';
+
+                if (contentType === 'image/png') {
+                    imageFilename += '.png';
+                    if (imageCheck[0].image_filename == null) {
+                        await eventsImages.set(id, imageFilename);
+                        await fs.writeFile(savePath + imageFilename, req.body);
+                        res.statusMessage = "Created";
+                        res.status(201).send();
+                    } else {
+                        await eventsImages.set(id, imageFilename);
+                        await fs.writeFile(savePath + imageFilename, req.body);
+                        res.statusMessage = "OK";
+                        res.status(200).send();
+                    }
+                } else if (contentType === 'image/jpeg') {
+                    imageFilename += '.jpg';
+                    if (imageCheck[0].image_filename == null) {
+                        await eventsImages.set(id, imageFilename);
+                        await fs.writeFile(savePath + imageFilename, req.body);
+                        res.statusMessage = "Created";
+                        res.status(201).send();
+                    } else {
+                        await eventsImages.set(id, imageFilename);
+                        await fs.writeFile(savePath + imageFilename, req.body);
+                        res.statusMessage = "OK";
+                        res.status(200).send();
+                    }
+                } else if (contentType === 'image/gif') {
+                    imageFilename += '.gif';
+                    if (imageCheck[0].image_filename == null) {
+                        await eventsImages.set(id, imageFilename);
+                        await fs.writeFile(savePath + imageFilename, req.body);
+                        res.statusMessage = "Created";
+                        res.status(201).send();
+                    } else {
+                        await eventsImages.set(id, imageFilename);
+                        await fs.writeFile(savePath + imageFilename, req.body);
+                        res.statusMessage = "OK";
+                        res.status(200).send();
+                    }
+                } else {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                }
+            }
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };
