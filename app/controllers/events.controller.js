@@ -5,7 +5,7 @@ exports.read = async function(req, res){
         let startIndex = req.query.startIndex;
         let count = req.query.count;
         let q = req.query.q;
-        let categoryIds = req.query.categoryIds;
+        const categoryIds = req.query.categoryIds;
         let organizerId = req.query.organizerId;
         let sortBy = req.query.sortBy;
 
@@ -25,34 +25,15 @@ exports.read = async function(req, res){
             organizerId = '';
         }
 
-        const cats = await events.getCategories();
 
-        let confirm = 0;
-        if (categoryIds != null) {
-            for (let i = 0; i < categoryIds.length; i++) {
-                let checker = 0;
-                for (let j = 0; j < cats.length; j++) {
-                    if (categoryIds[i] == cats[j].id) {
-                        checker = 1;
-                    }
-                }
-                if (checker == 0) {
-                    confirm = 1;
-                }
-            }
-        }
+        q ='%' + q + '%';
+        organizerId ='%' + organizerId + '%';
+        sortBy = await events.sortMapper(sortBy);
 
-        if (confirm == 1) {
-            res.statusMessage = "Bad Request";
-            res.status(400).send();
-        } else {
-            q ='%' + q + '%';
-            organizerId ='%' + organizerId + '%';
-            sortBy = await events.sortMapper(sortBy);
+        let result = [];
+        result = await events.getEvents(sortBy, q, organizerId);
 
-            let result = [];
-            result = await events.getEvents(sortBy, q, organizerId);
-
+        if (categoryIds == null) {
             if (count == null) {
                 res.statusMessage = "OK";
                 res.status(200).send(result.slice(startIndex));
