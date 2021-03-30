@@ -53,7 +53,6 @@ exports.set = async function(req, res){
             res.status(403).send();
         } else {
             const type = req.header("Content-Type");
-            console.log(type);
             const date = Date.now();
             let image_filename = 'user_' + date;
             const savePath = 'storage/images/';
@@ -73,6 +72,8 @@ exports.set = async function(req, res){
             } else if (type === 'image/gif') {
                 image_filename += '.gif';
             }
+
+            console.log(req.body);
 
             await usersImages.set(id, image_filename);
             await fs.writeFile(savePath + image_filename, req.body);
