@@ -5,7 +5,7 @@ exports.read = async function(req, res){
         let startIndex = req.query.startIndex;
         let count = req.query.count;
         let q = req.query.q;
-        const categoryIds = req.query.categoryIds;
+        let categoryIds = req.query.categoryIds;
         let organizerId = req.query.organizerId;
         let sortBy = req.query.sortBy;
 
@@ -25,20 +25,39 @@ exports.read = async function(req, res){
             organizerId = '';
         }
 
-        q ='%' + q + '%';
-        organizerId ='%' + organizerId + '%';
-        sortBy = await events.sortMapper(sortBy);
+        const cats = await events.getCategories();
 
-        let result = [];
-        result = await events.getEvents(sortBy, q, organizerId);
+        let checker = 0;
+        if (categoryIds != null) {
+            for (let i = 0; i < categoryIds.length; i++) {
+                let checker = 0;
+                for (let j = 0; j < cats.length; j++) {
+                    if (categoryIds[i] == cats[j].category_id) {
+                        checker = 1;
+                    }
+                }
+            }
+        }
 
-        if (count == null) {
-            res.statusMessage = "OK";
-            res.status(200).send(result.slice(startIndex));
+        if (checker != 1) {
+            res.statusMessage = "Bad Request";
+            res.status(400).send();
         } else {
-            count = Number(count) + 1;
-            res.statusMessage = "OK";
-            res.status(200).send(result.slice(startIndex, count));
+            q ='%' + q + '%';
+            organizerId ='%' + organizerId + '%';
+            sortBy = await events.sortMapper(sortBy);
+
+            let result = [];
+            result = await events.getEvents(sortBy, q, organizerId);
+
+            if (count == null) {
+                res.statusMessage = "OK";
+                res.status(200).send(result.slice(startIndex));
+            } else {
+                count = Number(count) + 1;
+                res.statusMessage = "OK";
+                res.status(200).send(result.slice(startIndex, count));
+            }
         }
     } catch( err ) {
         console.log(err);
