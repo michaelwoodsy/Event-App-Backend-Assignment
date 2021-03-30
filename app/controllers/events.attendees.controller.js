@@ -1,6 +1,5 @@
 const eventsAttendees = require('../models/events.attendees.model');
 const users = require('../models/users.model');
-const events = require('../models/events.model');
 
 exports.read = async function(req, res){
     try{
@@ -42,7 +41,6 @@ exports.read = async function(req, res){
     }
 };
 
-//Check to see if there is already and event with the same date, title and categories
 exports.add = async function(req, res){
     try{
         const id = req.params.id;
