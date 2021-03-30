@@ -100,7 +100,6 @@ exports.delete = async function(req, res){
             res.status(401).send();
         } else {
             const attendanceCheck = await eventsAttendees.checkAttendee(eventCheck[0].id, user[0].id);
-            console.log(attendanceCheck);
 
             const currentDate = new Date();
             const dateObject = new Date(eventCheck[0].date);
@@ -127,5 +126,56 @@ exports.delete = async function(req, res){
 };
 
 exports.update = async function(req, res){
-    return null;
+    try{
+        const userId = req.params.user_id;
+        const eventId = req.params.event_id;
+        const userCheck = users.getUser(userId);
+        const eventCheck = await eventsAttendees.getEvent(eventId);
+
+        let status = req.body.status;
+
+        const authToken = req.header('X-Authorization');
+        const user = await users.findToken(authToken);
+
+        if (eventCheck.length === 0 || userCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (authToken == null || user.length === 0) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else {
+            if (user[0].id !== eventCheck[0].organizer_id) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else {
+                const attendanceCheck = await eventsAttendees.checkAttendee(eventId, userId);
+                if (attendanceCheck.length === 0) {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                } else {
+                    if (status === 'accepted') {
+                        await eventsAttendees.updateAttendee(1, eventId, userId);
+                        res.statusMessage = "OK";
+                        res.status(200).send();
+                    } else if (status === 'pending') {
+                        await eventsAttendees.updateAttendee(2, eventId, userId);
+                        res.statusMessage = "OK";
+                        res.status(200).send();
+                    } else if (status === 'rejected') {
+                        await eventsAttendees.updateAttendee(3, eventId, userId);
+                        res.statusMessage = "OK";
+                        res.status(200).send();
+                    } else {
+                        res.statusMessage = "Bad Request";
+                        res.status(400).send();
+                    }
+                 }
+            }
+
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };

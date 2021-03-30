@@ -60,3 +60,11 @@ exports.checkAttendee = async function(eventId, userId) {
     conn.release();
     return result;
 }
+
+exports.updateAttendee = async function(eventStatus, eventId, userId) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event_attendees set attendance_status_id = ? where event_id = ? and user_id = ?';
+    const [result] = await conn.query(query, [eventStatus, eventId, userId]);
+    conn.release();
+    return result;
+}
