@@ -1,15 +1,34 @@
 const events = require('../models/events.model');
+
 exports.read = async function(req, res){
     try {
-        const result = await events.read();
-        if( result.length === 0 ){
-            res.statusMessage = "Bad Request";
-            res.status(400).send();
+        let startIndex = req.params.startIndex;
+        let count = req.params.count;
+        const q = req.params.q;
+        const categoryIds = req.params.categoryIds;
+        const organizerId = req.params.organizerId;
+        let sortBy = req.params.sortBy;
+
+        if (startIndex == null) {
+            startIndex = 0;
         }
-        else {
-            res.statusMessage = "OK";
-            res.status(200).send(result);
+
+        if (sortBy == null) {
+            sortBy = 'DATE_DESC';
         }
+
+        if (count == null) {
+            const rows = await events.getRows();
+            count = rows.length;
+        }
+
+        sortBy = await events.sortMapper(sortBy);
+
+        const result = await events.getEvents(startIndex, count, sortBy);
+
+        res.statusMessage = "OK";
+        res.status(200).send(result);
+
     } catch( err ) {
         console.log(err);
         res.statusMessage = "Internal Server Error";
