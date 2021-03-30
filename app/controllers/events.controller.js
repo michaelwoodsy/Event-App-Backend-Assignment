@@ -127,7 +127,7 @@ exports.create = async function(req, res){
             res.statusMessage = "Unauthorized";
             res.status(401).send();
         } else {
-            if ((title == null && title != "") || description == null || categoryIds == null) {
+            if ((title == null && title !== "") || description == null || categoryIds == null || date == null) {
                 res.statusMessage = "Bad Request";
                 res.status(400).send();
             }
