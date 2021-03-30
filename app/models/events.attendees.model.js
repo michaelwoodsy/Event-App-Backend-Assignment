@@ -38,3 +38,9 @@ exports.getAttendee = async function(eventId, userId) {
     conn.release();
     return result;
 }
+
+exports.addAttendee = async function(eventId, userId) {
+    const conn = await db.getPool().getConnection();
+    const query = 'insert into event_attendees (event_id, user_id, attendance_status_id) values (?, ?, 2)';
+    await conn.query(query, [eventId, userId]);
+}
