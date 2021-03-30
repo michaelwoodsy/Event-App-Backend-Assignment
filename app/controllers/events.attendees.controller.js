@@ -1,4 +1,5 @@
 const eventsAttendees = require('../models/events.attendees.model');
+
 const users = require('../models/users.model');
 
 exports.read = async function(req, res){
@@ -82,7 +83,47 @@ exports.add = async function(req, res){
 };
 
 exports.delete = async function(req, res){
-    return null;
+    try{
+        const id = req.params.id;
+        const eventCheck = await eventsAttendees.getEvent(id);
+
+        const authToken = req.header('X-Authorization');
+        const user = await users.findToken(authToken);
+        if (eventCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (authToken == null) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (user.length === 0) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else {
+            const attendanceCheck = await eventsAttendees.checkAttendee(eventCheck[0].id, user[0].id);
+            console.log(attendanceCheck);
+
+            const currentDate = new Date();
+            const dateObject = new Date(eventCheck[0].date);
+            if (attendanceCheck.length === 0) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else if (dateObject < currentDate) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else if (attendanceCheck[0].status === 3) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else {
+                await eventsAttendees.deleteAttendee(eventCheck[0].id, user[0].id);
+                res.statusMessage = "OK";
+                res.status(200).send();
+            }
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };
 
 exports.update = async function(req, res){

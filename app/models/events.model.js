@@ -86,19 +86,21 @@ exports.deleteEventCategory = async function(id) {
     const conn = await db.getPool().getConnection();
     const query = 'delete from event_category where event_id = ?';
     await conn.query(query, [id]);
-
+    conn.release();
 }
 
 exports.deleteEventAttendees = async function(id) {
     const conn = await db.getPool().getConnection();
     const query = 'delete from event_attendees where event_id = ?';
     await conn.query(query, [id]);
+    conn.release();
 }
 
 exports.deleteEvent = async function(id) {
     const conn = await db.getPool().getConnection();
     const query = 'delete from event where id = ?';
     await conn.query(query, [id]);
+    conn.release();
 }
 
 exports.checkEvent = async function(title, date, userId) {
