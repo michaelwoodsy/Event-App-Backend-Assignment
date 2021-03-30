@@ -1,5 +1,5 @@
 const db = require('../../config/db');
-exports.getEvents = async function(startIndex, count, q, categoryIds, organizerId, sortBy) {
+exports.getEvents = async function(startIndex, count, sortBy) {
     const conn = await db.getPool().getConnection();
     const query = 'select ec.event_id eventId, title, GROUP_CONCAT(distinct category_id) categories, first_name organizerFirstName, last_name organizerLastName, count(*) numAcceptedAttendees, capacity from event join event_category ec on event.id = ec.event_id join user on event.organizer_id = user.id join event_attendees ea on event.id = ea.event_id join attendance_status `as` where ea.attendance_status_id = 1 group by ec.event_id order by ? limit ? offset ?'
     const [result] = await conn.query(query, [sortBy, count, startIndex]);
