@@ -27,7 +27,7 @@ exports.read = async function(req, res){
 
         const cats = await events.getCategories();
 
-        let checker = 0;
+        let confirm = 0;
         if (categoryIds != null) {
             for (let i = 0; i < categoryIds.length; i++) {
                 let checker = 0;
@@ -36,10 +36,13 @@ exports.read = async function(req, res){
                         checker = 1;
                     }
                 }
+                if (checker == 0) {
+                    confirm = 1;
+                }
             }
         }
 
-        if (checker != 1) {
+        if (confirm == 1) {
             res.statusMessage = "Bad Request";
             res.status(400).send();
         } else {
