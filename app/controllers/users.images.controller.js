@@ -57,14 +57,6 @@ exports.set = async function(req, res){
             let imageFilename = 'user_' + date;
             const savePath = 'storage/images/';
 
-            if (imageCheck[0].image_filename == null) {
-                res.statusMessage = "Created";
-                res.status(201);
-            } else {
-                res.statusMessage = "OK";
-                res.status(200);
-            }
-
             if (contentType === 'image/png') {
                 imageFilename += '.png';
             } else if (contentType === 'image/jpeg') {
