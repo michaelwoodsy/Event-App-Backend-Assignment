@@ -21,13 +21,13 @@ exports.sortMapper = async function(sortBy) {
     } else if (sortBy === "DATE_DESC") {
         sortBy = "date desc";
     } else if (sortBy === "ATTENDEES_ASC") {
-        sortBy = "attendees";
+        sortBy = "numAcceptedAttendees";
     } else if (sortBy === "ATTENDEES_DESC") {
-        sortBy = "attendees desc";
+        sortBy = "numAcceptedAttendees desc";
     } else if (sortBy === "CAPACITY_ASC") {
         sortBy = "capacity";
     } else if (sortBy === "CAPACITY_DESC") {
-        sortBy = "capacity";
+        sortBy = "capacity desc";
     }
-    return sortBy
+    return sortBy;
 }

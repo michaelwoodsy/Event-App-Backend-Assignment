@@ -2,12 +2,12 @@ const events = require('../models/events.model');
 
 exports.read = async function(req, res){
     try {
-        let startIndex = req.params.startIndex;
-        let count = req.params.count;
-        const q = req.params.q;
-        const categoryIds = req.params.categoryIds;
-        const organizerId = req.params.organizerId;
-        let sortBy = req.params.sortBy;
+        let startIndex = req.query.startIndex;
+        let count = req.query.count;
+        const q = req.query.q;
+        const categoryIds = req.query.categoryIds;
+        const organizerId = req.query.organizerId;
+        let sortBy = req.query.sortBy;
 
         if (startIndex == null) {
             startIndex = 0;
@@ -18,7 +18,6 @@ exports.read = async function(req, res){
         }
 
         sortBy = await events.sortMapper(sortBy);
-
         let result = [];
         result = await events.getEvents(sortBy);
 
@@ -26,9 +25,9 @@ exports.read = async function(req, res){
             res.statusMessage = "OK";
             res.status(200).send(result.slice(startIndex));
         } else {
-            const countAdjust = Number(count) + 1;
+            count = Number(count) + 1;
             res.statusMessage = "OK";
-            res.status(200).send(result.slice(startIndex, countAdjust));
+            res.status(200).send(result.slice(startIndex, count));
         }
     } catch( err ) {
         console.log(err);
