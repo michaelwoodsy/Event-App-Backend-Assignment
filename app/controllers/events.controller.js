@@ -8,7 +8,6 @@ exports.read = async function(req, res){
         const categoryIds = req.query.categoryIds;
         let organizerId = req.query.organizerId;
         let sortBy = req.query.sortBy;
-        console.log(Number(categoryIds));
 
         if (startIndex == null) {
             startIndex = 0;
