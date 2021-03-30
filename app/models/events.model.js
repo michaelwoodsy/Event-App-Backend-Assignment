@@ -81,3 +81,22 @@ exports.getCategories = async function() {
     conn.release();
     return result;
 }
+
+exports.deleteEventCategory = async function(id) {
+    const conn = await db.getPool().getConnection();
+    const query = 'delete from event_category where event_id = ?';
+    await conn.query(query, [id]);
+
+}
+
+exports.deleteEventAttendees = async function(id) {
+    const conn = await db.getPool().getConnection();
+    const query = 'delete from event_attendees where event_id = ?';
+    await conn.query(query, [id]);
+}
+
+exports.deleteEvent = async function(id) {
+    const conn = await db.getPool().getConnection();
+    const query = 'delete from event where id = ?';
+    await conn.query(query, [id]);
+}

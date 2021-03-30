@@ -1,6 +1,7 @@
 const events = require('../models/events.model');
 const users = require('../models/users.model');
 
+//fix organizerId, like is scuffed and it will bug out
 exports.read = async function(req, res){
     try {
         let startIndex = req.query.startIndex;
@@ -176,7 +177,6 @@ exports.readEvent = async function(req, res){
             res.statusMessage = "Not Found";
             res.status(404).send();
         } else {
-            const result = {};
             res.statusMessage = "OK";
             res.status(200).send(eventCheck);
         }
@@ -192,7 +192,33 @@ exports.update = async function(req, res){
 };
 
 exports.delete = async function(req, res){
-    return null;
+    const id = req.params.id;
+    const eventCheck = await events.getEvent(id);
+
+    const authToken = req.header('X-Authorization');
+    const user = await users.findToken(authToken);
+
+    if (eventCheck.length === 0) {
+        res.statusMessage = "Not Found";
+        res.status(404).send();
+    } else if (authToken == null) {
+        res.statusMessage = "Unauthorized";
+        res.status(401).send();
+    } else if (user.length === 0) {
+        res.statusMessage = "Unauthorized";
+        res.status(401).send();
+    } else if (user[0].id !== eventCheck[0].organizer_id) {
+        console.log(user[0].id);
+        console.log(eventCheck[0].organizer_id);
+        res.statusMessage = "Forbidden";
+        res.status(403).send();
+    } else {
+        await events.deleteEventAttendees(id);
+        await events.deleteEventCategory(id);
+        await events.deleteEvent(id);
+        res.statusMessage = "OK";
+        res.status(200).send();
+    }
 };
 
 exports.categories = async function(req, res){
