@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 exports.register = async function(firstName, lastName, email, password) {
     const hash = await bcrypt.hash(password, 10);
     const conn = await db.getPool().getConnection();
-    const query = 'insert into user (email, first_name, last_name, password) values (?, ?, ?, ?)';
+    const query = 'insert into user (email, first_name, last_name, password) values ( ? )';
     const [result] = await conn.query(query, [[firstName, lastName, email, hash]]);
     conn.release();
     return result;
