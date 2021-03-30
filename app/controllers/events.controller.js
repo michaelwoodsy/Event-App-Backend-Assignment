@@ -1,4 +1,5 @@
 const events = require('../models/events.model');
+const users = require('../models/users.model');
 
 exports.read = async function(req, res){
     try {
@@ -96,7 +97,66 @@ exports.read = async function(req, res){
 };
 
 exports.create = async function(req, res){
-    return null;
+    try{
+        const title = req.body.title;
+        const description = req.body.description;
+        const categoryIds = req.body.categoryIds;
+        const date = req.body.date;
+        let isOnline = req.body.isOnline;
+        const url = req.body.url;
+        const venue = req.body.venue;
+        const capacity = req.body.capacity;
+        let requiresAttendanceControl = req.body.requiresAttendanceControl;
+        let fee = req.body.fee;
+        const authToken = req.header('X-Authorization');
+        const user = await users.findToken(authToken);
+
+        if (fee == null) {
+            fee = 0.00
+        }
+
+        if (isOnline == null) {
+            isOnline = 0;
+        }
+
+        if (requiresAttendanceControl == null) {
+            requiresAttendanceControl = 0;
+        }
+
+        if (user.length === 0) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else {
+            if (title == null || description == null || categoryIds == null) {
+                res.statusMessage = "Bad Request";
+                res.status(400).send();
+            }
+            let categoryCheck = true;
+            for (let i = 0; i < categoryIds.length; i++) {
+                let checkCategory = await events.checkCategory(categoryIds[i]);
+                if (checkCategory.length === 0) {
+                    categoryCheck = false;
+                }
+            }
+            if (!categoryCheck) {
+                res.statusMessage = "Bad Request";
+                res.status(400).send();
+            } else {
+                const event = await events.getId();
+                const id = event[0].minusID + 1;
+                await events.addEvent(title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user[0].id);
+                for (let i = 0; i < categoryIds.length; i++) {
+                    await events.addEventCategory(id, categoryIds[i])
+                    }
+                res.statusMessage = "OK";
+                res.status(200).send({eventID: String(id)});
+            }
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };
 
 exports.readEvent = async function(req, res){

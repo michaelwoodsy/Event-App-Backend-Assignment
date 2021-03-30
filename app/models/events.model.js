@@ -38,3 +38,27 @@ exports.sortMapper = async function(sortBy) {
     }
     return sortBy;
 }
+
+exports.getId = async function() {
+    const conn = await db.getPool().getConnection();
+    const query = 'select count(*) minusID from event';
+    const [result] = await conn.query(query);
+    conn.release();
+    return result;
+}
+
+exports.addEvent = async function(title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user) {
+    const conn = await db.getPool().getConnection();
+    const query = 'insert into event (title, description, date, is_online, url, venue, capacity, requires_attendance_control, fee, organizer_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const [result] = await conn.query(query, [title, description, date, isOnline, url, venue, capacity, requiresAttendanceControl, fee, user]);
+    conn.release();
+    return result;
+}
+
+exports.addEventCategory = async function(eventId, category) {
+    const conn = await db.getPool().getConnection();
+    const query = 'insert into event_category (event_id, category_id) values (?, ?)';
+    const [result] = await conn.query(query, [eventId, category]);
+    conn.release();
+    return result;
+}
