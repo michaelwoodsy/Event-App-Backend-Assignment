@@ -40,7 +40,44 @@ exports.read = async function(req, res){
 };
 
 exports.add = async function(req, res){
-    return null;
+    try{
+        const id = req.params.id;
+        const eventCheck = await eventsAttendees.getEvent(id);
+
+        const authToken = req.header('X-Authorization');
+        const user = await users.findToken(authToken);
+        if (eventCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (authToken == null) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (user.length === 0) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else {
+            const attendanceCheck = await eventsAttendees.getAttendee(eventCheck[0].id, user[0].id);
+
+            const eventDate = eventCheck[0].date;
+            const currentDate = Date();
+            const dateAndTime = eventDate.split(" ");
+            const dateObject = new Date(dateAndTime[0]);
+            if (attendanceCheck.length !== 0) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else if (currentDate > dateObject) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else {
+                res.statusMessage = "OK";
+                res.status(201).send();
+            }
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };
 
 exports.delete = async function(req, res){

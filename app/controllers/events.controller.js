@@ -192,32 +192,38 @@ exports.update = async function(req, res){
 };
 
 exports.delete = async function(req, res){
-    const id = req.params.id;
-    const eventCheck = await events.getEvent(id);
+    try{
+        const id = req.params.id;
+        const eventCheck = await events.getEvent(id);
 
-    const authToken = req.header('X-Authorization');
-    const user = await users.findToken(authToken);
+        const authToken = req.header('X-Authorization');
+        const user = await users.findToken(authToken);
 
-    if (eventCheck.length === 0) {
-        res.statusMessage = "Not Found";
-        res.status(404).send();
-    } else if (authToken == null) {
-        res.statusMessage = "Unauthorized";
-        res.status(401).send();
-    } else if (user.length === 0) {
-        res.statusMessage = "Unauthorized";
-        res.status(401).send();
-    } else if (user[0].id !== eventCheck[0].organizer_id) {
-        console.log(user[0].id);
-        console.log(eventCheck[0].organizer_id);
-        res.statusMessage = "Forbidden";
-        res.status(403).send();
-    } else {
-        await events.deleteEventAttendees(id);
-        await events.deleteEventCategory(id);
-        await events.deleteEvent(id);
-        res.statusMessage = "OK";
-        res.status(200).send();
+        if (eventCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (authToken == null) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (user.length === 0) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (user[0].id !== eventCheck[0].organizer_id) {
+            console.log(user[0].id);
+            console.log(eventCheck[0].organizer_id);
+            res.statusMessage = "Forbidden";
+            res.status(403).send();
+        } else {
+            await events.deleteEventAttendees(id);
+            await events.deleteEventCategory(id);
+            await events.deleteEvent(id);
+            res.statusMessage = "OK";
+            res.status(200).send();
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
     }
 };
 
