@@ -34,8 +34,7 @@ exports.findToken = async function(token) {
     const [result] = await conn.query( query, [token]);
     conn.release();
     return result;
-
-}
+};
 
 exports.logout = async function(id) {
     const conn = await db.getPool().getConnection();
