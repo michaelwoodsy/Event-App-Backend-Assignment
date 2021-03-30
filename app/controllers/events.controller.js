@@ -19,11 +19,17 @@ exports.read = async function(req, res){
 
         sortBy = await events.sortMapper(sortBy);
 
-        const result = await events.getEvents(sortBy);
+        let result = [];
+        result = await events.getEvents(sortBy);
 
-        res.statusMessage = "OK";
-        res.status(200).send(result);
-
+        if (count == null) {
+            res.statusMessage = "OK";
+            res.status(200).send(result.slice(startIndex));
+        } else {
+            const countAdjust = Number(count) + 1;
+            res.statusMessage = "OK";
+            res.status(200).send(result.slice(startIndex, countAdjust));
+        }
     } catch( err ) {
         console.log(err);
         res.statusMessage = "Internal Server Error";
