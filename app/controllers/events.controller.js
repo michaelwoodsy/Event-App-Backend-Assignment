@@ -143,9 +143,8 @@ exports.create = async function(req, res){
                 res.statusMessage = "Bad Request";
                 res.status(400).send();
             } else {
-                const currentDate = Date();
-                const dateAndTime = date.split(" ");
-                const dateObject = new Date(dateAndTime[0]);
+                const currentDate = new Date();
+                const dateObject = new Date(req.body.date);
                 if (dateObject < currentDate) {
                     res.statusMessage = "Bad Request";
                     res.status(400).send();

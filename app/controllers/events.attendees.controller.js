@@ -39,6 +39,7 @@ exports.read = async function(req, res){
     }
 };
 
+//Check to see if there is already and event with the same date, title and categories
 exports.add = async function(req, res){
     try{
         const id = req.params.id;
@@ -56,16 +57,16 @@ exports.add = async function(req, res){
             res.statusMessage = "Unauthorized";
             res.status(401).send();
         } else {
-            const attendanceCheck = await eventsAttendees.getAttendee(eventCheck[0].id, user[0].id);
+            const attendanceCheck = await eventsAttendees.getAttendee(id, user[0].id);
 
-            const eventDate = eventCheck[0].date;
-            const currentDate = Date();
-            const dateAndTime = eventDate.split(" ");
-            const dateObject = new Date(dateAndTime[0]);
+            const currentDate = new Date();
+            const dateObject = new Date(eventCheck[0].date);
+            console.log(currentDate);
+            console.log(attendanceCheck);
             if (attendanceCheck.length !== 0) {
                 res.statusMessage = "Forbidden";
                 res.status(403).send();
-            } else if (currentDate > dateObject) {
+            } else if (dateObject < currentDate) {
                 res.statusMessage = "Forbidden";
                 res.status(403).send();
             } else {
