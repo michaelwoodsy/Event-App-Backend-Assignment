@@ -32,7 +32,7 @@ exports.read = async function(req, res){
             for (let i = 0; i < categoryIds.length; i++) {
                 let checker = 0;
                 for (let j = 0; j < cats.length; j++) {
-                    if (categoryIds[i] == cats[j].category_id) {
+                    if (categoryIds[i] == cats[j].id) {
                         checker = 1;
                     }
                 }
