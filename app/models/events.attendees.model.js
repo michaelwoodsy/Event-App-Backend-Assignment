@@ -39,8 +39,8 @@ exports.getAttendee = async function(eventId, userId) {
     return result;
 }
 
-exports.addAttendee = async function(eventId, userId) {
+exports.addAttendee = async function(eventId, userId, status) {
     const conn = await db.getPool().getConnection();
-    const query = 'insert into event_attendees (event_id, user_id, attendance_status_id) values (?, ?, 2)';
-    await conn.query(query, [eventId, userId]);
+    const query = 'insert into event_attendees (event_id, user_id, attendance_status_id) values (?, ?, ?)';
+    await conn.query(query, [eventId, userId, status]);
 }

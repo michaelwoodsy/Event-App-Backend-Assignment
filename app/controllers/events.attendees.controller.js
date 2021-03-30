@@ -69,7 +69,7 @@ exports.add = async function(req, res){
                 res.statusMessage = "Forbidden";
                 res.status(403).send();
             } else {
-                await eventsAttendees.addAttendee(eventCheck[0].id, user[0].id);
+                await eventsAttendees.addAttendee(eventCheck[0].id, user[0].id, 2);
                 res.statusMessage = "OK";
                 res.status(201).send();
             }
