@@ -29,6 +29,10 @@ exports.read = async function(req, res){
                     res.statusMessage = "OK";
                     res.status(200).send(result);
                 }
+            } else {
+                const result = await eventsAttendees.getAttendees(id);
+                res.statusMessage = "OK";
+                res.status(200).send(result);
             }
         }
     } catch( err ) {
