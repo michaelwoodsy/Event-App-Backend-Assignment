@@ -121,3 +121,80 @@ exports.checkEvent = async function(title, date, userId) {
     conn.release();
     return result;
 };
+
+exports.setTitle = async function(id, title) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set title = ? where id = ?';
+    await conn.query(query, [title, id]);
+    conn.release();
+};
+
+exports.setDescription = async function(id, description) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set description = ? where id = ?';
+    await conn.query(query, [description, id]);
+    conn.release();
+};
+
+exports.setDate = async function(id, date) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set date = ? where id = ?';
+    await conn.query(query, [date, id]);
+    conn.release();
+};
+
+exports.setOnline = async function(id, isOnline) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set is_online = ? where id = ?';
+    await conn.query(query, [isOnline, id]);
+    conn.release();
+};
+
+exports.setUrl = async function(id, url) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set url = ? where id = ?';
+    await conn.query(query, [url, id]);
+    conn.release();
+};
+
+exports.setVenue = async function(id, venue) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set venue = ? where id = ?';
+    await conn.query(query, [venue, id]);
+    conn.release();
+};
+
+exports.setCapacity = async function(id, capacity) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set capacity = ? where id = ?';
+    await conn.query(query, [capacity, id]);
+    conn.release();
+};
+
+exports.setControl = async function(id, requiresAttendanceControl) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set requires_attendance_control = ? where id = ?';
+    await conn.query(query, [requiresAttendanceControl, id]);
+    conn.release();
+};
+
+exports.setFee = async function(id, fee) {
+    const conn = await db.getPool().getConnection();
+    const query = 'update event set fee = ? where id = ?';
+    await conn.query(query, [fee, id]);
+    conn.release();
+};
+
+exports.deleteCategories = async function(id) {
+    const conn = await db.getPool().getConnection();
+    const query = 'delete from event_category where event_id = ?';
+    await conn.query(query, [id]);
+    conn.release();
+};
+
+exports.insertCategories = async function(id, categoryId) {
+    const conn = await db.getPool().getConnection();
+    const query = 'insert into event_category (event_id, category_id) values (?, ?)';
+    await conn.query(query, [id, categoryId]);
+    conn.release();
+};

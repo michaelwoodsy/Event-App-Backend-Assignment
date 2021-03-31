@@ -83,7 +83,6 @@ exports.read = async function(req, res){
                         rows.push(result[i]);
                     }
                 }
-
                 if (count == null) {
                     res.statusMessage = "OK";
                     res.status(200).send(rows.slice(startIndex));
@@ -198,7 +197,105 @@ exports.readEvent = async function(req, res){
 };
 
 exports.update = async function(req, res){
-    return null;
+    try{
+        const id = req.params.id;
+        const eventCheck = await events.getEvent(id);
+
+        const authToken = req.header('X-Authorization');
+        const user = await users.findToken(authToken);
+
+        if (eventCheck.length === 0) {
+            res.statusMessage = "Not Found";
+            res.status(404).send();
+        } else if (authToken == null) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (user.length === 0) {
+            res.statusMessage = "Unauthorized";
+            res.status(401).send();
+        } else if (user[0].id !== eventCheck[0].organizer_id) {
+            res.statusMessage = "Forbidden";
+            res.status(403).send();
+        } else {
+            const currentDate = new Date();
+            const dateObject = new Date(eventCheck[0].date);
+            if (dateObject < currentDate) {
+                res.statusMessage = "Forbidden";
+                res.status(403).send();
+            } else {
+                const title = req.body.title;
+                const description = req.body.description;
+                const categoryIds = req.body.categoryIds;
+                const date = req.body.date;
+                const isOnline = req.body.isOnline;
+                const url = req.body.url;
+                const venue = req.body.venue;
+                const capacity = req.body.capacity;
+                const requiresAttendanceControl = req.body.requiresAttendanceControl;
+                const fee = req.body.fee;
+
+                if (title != null && title !== '') {
+                    await events.setTitle(id, title);
+                }
+                if (description != null) {
+                    await events.setDescription(id, description);
+                }
+                if (date != null && currentDate < date) {
+                    await events.setDate(id, date);
+                }
+                if (isOnline != null) {
+                    await events.setOnline(id, isOnline);
+                }
+                if (url != null) {
+                    await events.setUrl(id, url);
+                }
+                if (venue != null) {
+                    await events.setVenue(id, venue);
+                }
+                if (capacity != null) {
+                    await events.setCapacity(id, capacity);
+                }
+                if (requiresAttendanceControl != null) {
+                    await events.setControl(id, requiresAttendanceControl);
+                }
+                if (fee != null) {
+                    await events.setFee(id, fee);
+                }
+                let categoryCheck = true;
+
+                if (categoryIds != null) {
+                    if (Array.isArray(categoryIds)) {
+                        for (let i = 0; i < categoryIds.length; i++) {
+                            let checkCategory = await events.checkCategory(categoryIds[i]);
+                            if (checkCategory.length === 0) {
+                                categoryCheck = false;
+                            }
+                        }
+                    } else {
+                        let checkCategory = await events.checkCategory(categoryIds);
+                        if (checkCategory.length === 0) {
+                            categoryCheck = false;
+                        }
+                    }
+                }
+                if (!categoryCheck) {
+                    res.statusMessage = "Bad Request";
+                    res.status(400).send();
+                } else {
+                    await events.deleteCategories(id);
+                    for (let i = 0; i < categoryIds.length; i++) {
+                        await events.insertCategories(id, categoryIds[i]);
+                    }
+                    res.statusMessage = "OK";
+                    res.status(200).send();
+                }
+            }
+        }
+    } catch( err ) {
+        console.log(err);
+        res.statusMessage = "Internal Server Error";
+        res.status(500).send();
+    }
 };
 
 exports.delete = async function(req, res){
@@ -219,8 +316,6 @@ exports.delete = async function(req, res){
             res.statusMessage = "Unauthorized";
             res.status(401).send();
         } else if (user[0].id !== eventCheck[0].organizer_id) {
-            console.log(user[0].id);
-            console.log(eventCheck[0].organizer_id);
             res.statusMessage = "Forbidden";
             res.status(403).send();
         } else {
